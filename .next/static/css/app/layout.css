@@ -600,6 +600,9 @@ video {
   --tw-contain-paint:  ;
   --tw-contain-style:  ;
 }
+.absolute {
+  position: absolute;
+}
 .mb-6 {
   margin-bottom: 1.5rem;
 }
