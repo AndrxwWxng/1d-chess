@@ -5,17 +5,11 @@ import React from 'react';
 const Square = ({ index }: { index: number }) => {
 //   const { board, handleSquareClick } = useContext(GameContext);
   return (
-    <div 
-    className="square" 
-    style={{ 
-        width: '50px', 
-        height: '50px', 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        border: '1px solid black', 
-        backgroundColor: index % 2 === 0 ? 'white' : 'black'
-        }}>
+    <div
+      className={`w-48 h-48 flex items-center justify-center text-4xl border border-stone-700 ${
+        index % 2 === 0 ? 'bg-amber-100' : 'bg-amber-800'
+      }`}
+    >
     </div>
   );
 };
