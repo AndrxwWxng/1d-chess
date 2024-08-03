@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from ".next/public/images";
 
 type PieceKey = 'K' | 'N' | 'R';
 
@@ -21,10 +21,10 @@ const ChessPiece: React.FC<ChessPieceProps> = ({piece}) => {
 
     return (
         <Image
-        src={`/images/chess-pieces/${pieceColor}-${pieceName}.svg`}
+        src={`/images/${pieceColor}${pieceName}.svg`}
         alt={`${pieceColor} ${pieceName}`}
-        width={40}
-        height={40}
+        width={100}
+        height={100}
       />
     );
   
