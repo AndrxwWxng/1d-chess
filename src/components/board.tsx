@@ -4,7 +4,7 @@ import { Card, CardContent } from './ui/card';
 // import {GameContext} from '../context.tsx/gameContext';
 
 const Board = () => {
-    const initialPiece = ['K', 'N', 'R', '','','R','N','K'];
+    const initialPiece = ['WK', 'WN', 'WR', '','','BR','BN','BK'];
     const BoardSize = 8;
     const board = Array(BoardSize).fill(null);
     // const { board } = useContext(GameContext);
