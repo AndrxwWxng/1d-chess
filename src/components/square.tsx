@@ -1,20 +1,23 @@
 import React from 'react';
 import ChessPiece from './piece';
-// import { GameContext } from '../context/GameContext';
-// import Piece from './Piece';
+
 type SquareProps = {
   index: number;
   piece: string;
-}
-const Square: React.FC<SquareProps> = ({ index, piece }) => {
-//   const { board, handleSquareClick } = useContext(GameContext);
+  onClick: () => void;
+  isSelected: boolean;
+  isAvailableMove: boolean;
+};
+
+const Square: React.FC<SquareProps> = ({ index, piece, onClick, isSelected, isAvailableMove }) => {
   return (
     <div
-      className={`w-48 h-48 flex items-center justify-center text-4xl border border-stone-700 ${
+      onClick={onClick}
+      className={`w-20 h-20 flex items-center justify-center text-4xl border border-stone-700 cursor-pointer ${
         index % 2 === 0 ? 'bg-amber-100' : 'bg-amber-800'
-      }`}
+      } ${isSelected ? 'ring-4 ring-blue-500' : ''} ${isAvailableMove ? 'ring-4 ring-green-500' : ''}`}
     >
-      {piece && <ChessPiece piece={piece} />}
+      {piece ? <ChessPiece piece={piece} /> : null}
     </div>
   );
 };
