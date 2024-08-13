@@ -63,8 +63,20 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (index < state.board.length - 1 && (!state.board[index + 1] || state.board[index + 1][0] !== piece[0])) moves.push(index + 1);
     }
     if (piece[1] === 'R') {
-      if (index > 0 && (!state.board[index - 1] || state.board[index - 1][0] !== piece[0] || state.board[index - 2][0] !== piece[0])) moves.push(index - 1), moves.push(index - 2);
-      if (index < state.board.length - 1 && (!state.board[index + 1] || state.board[index + 1][0] !== piece[0] || state.board[index + 2][0] !== piece[0])) moves.push(index + 1), moves.push(index + 2);
+      for (let i = index - 1; i >= 0; i--) {
+        if (!state.board[i]) moves.push(i);
+        else if (state.board[i][0] !== piece[0]) {
+          moves.push(i);
+          break;
+        } else break;
+      }
+      for (let i = index + 1; i < state.board.length; i++) {
+        if (!state.board[i]) moves.push(i);
+        else if (state.board[i][0] !== piece[0]) {
+          moves.push(i);
+          break;
+        } else break;
+      }
     }
     if (piece[1] === 'N') {
       if (index > 1 && (!state.board[index - 2] || state.board[index - 2][0] !== piece[0])) moves.push(index - 2);
@@ -91,7 +103,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       newBoard[selectedPiece] = '';
 
       const newPlayer = currentPlayer === 'white' ? 'black' : 'white';
-      const winner = checkForGameEnd(newBoard, newPlayer);
+      const gameStatus = checkGameStatus(newBoard, newPlayer);
 
       setState({
         ...state,
@@ -99,19 +111,35 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         currentPlayer: newPlayer,
         selectedPiece: null,
         availableMoves: [],
-        isGameOver: !!winner,
-        winner,
+        isGameOver: gameStatus !== 'ongoing',
+        winner: gameStatus === 'checkmate' ? currentPlayer : (gameStatus === 'stalemate' ? 'draw' : null),
       });
     } else {
       setState({ ...state, selectedPiece: null, availableMoves: [] });
     }
   };
 
-  const checkForGameEnd = (board: string[], currentPlayer: 'white' | 'black') => {
-    const kingPosition = board.indexOf(currentPlayer === 'white' ? 'BK' : 'WK');
-    if (kingPosition === -1) return currentPlayer === 'white' ? 'white' : 'black';
-    if (kingPosition === -1 || kingPosition === board.length + 1) return currentPlayer === 'white' ? 'white' : 'black';
-    return null;
+  const checkGameStatus = (board: string[], currentPlayer: 'white' | 'black'): 'ongoing' | 'checkmate' | 'stalemate' => {
+    const opponentColor = currentPlayer === 'white' ? 'B' : 'W';
+    let hasLegalMoves = false;
+
+    for (let i = 0; i < board.length; i++) {
+      if (board[i][0] === opponentColor) {
+        const moves = calculateAvailableMoves(i);
+        if (moves.length > 0) {
+          hasLegalMoves = true;
+          break;
+        }
+      }
+    }
+
+    if (!hasLegalMoves) {
+      const kingPosition = board.indexOf(opponentColor + 'K');
+      const isInCheck = calculateAvailableMoves(kingPosition).some(move => board[move][1] === 'K');
+      return isInCheck ? 'checkmate' : 'stalemate';
+    }
+
+    return 'ongoing';
   };
 
   const resetGame = () => {
