@@ -33,7 +33,7 @@ type GameState = {
 };
 
 const initialState: GameState = {
-  board: ['WR', 'WN', 'WK', '', '', 'BK', 'BN', 'BR'],
+  board: ['WK', 'WN', 'WR', '', '', 'BR', 'BN', 'BK'],
   currentPlayer: 'white',
   selectedPiece: null,
   availableMoves: [],
@@ -58,9 +58,13 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const moves = [];
-    if (piece[1] === 'K' || piece[1] === 'R') {
+    if (piece[1] === 'K') {
       if (index > 0 && (!state.board[index - 1] || state.board[index - 1][0] !== piece[0])) moves.push(index - 1);
       if (index < state.board.length - 1 && (!state.board[index + 1] || state.board[index + 1][0] !== piece[0])) moves.push(index + 1);
+    }
+    if (piece[1] === 'R') {
+      if (index > 0 && (!state.board[index - 1] || state.board[index - 1][0] !== piece[0] || state.board[index - 2][0] !== piece[0])) moves.push(index - 1), moves.push(index - 2);
+      if (index < state.board.length - 1 && (!state.board[index + 1] || state.board[index + 1][0] !== piece[0] || state.board[index + 2][0] !== piece[0])) moves.push(index + 1), moves.push(index + 2);
     }
     if (piece[1] === 'N') {
       if (index > 1 && (!state.board[index - 2] || state.board[index - 2][0] !== piece[0])) moves.push(index - 2);
@@ -106,7 +110,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const checkForGameEnd = (board: string[], currentPlayer: 'white' | 'black') => {
     const kingPosition = board.indexOf(currentPlayer === 'white' ? 'BK' : 'WK');
     if (kingPosition === -1) return currentPlayer === 'white' ? 'white' : 'black';
-    if (kingPosition === 0 || kingPosition === board.length - 1) return currentPlayer === 'white' ? 'white' : 'black';
+    if (kingPosition === -1 || kingPosition === board.length + 1) return currentPlayer === 'white' ? 'white' : 'black';
     return null;
   };
 
