@@ -136,17 +136,17 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return moves;
   };
 
-  const isStalemate = (board: string[], color: 'white' | 'black') => {
-    return !isCheck(board, color) && !hasLegalMoves(board, color);
-  };
+  // const isStalemate = (board: string[], color: 'white' | 'black') => {
+  //   return !isCheck(board, color) && !hasLegalMoves(board, color);
+  // };
 
-  const isCheckmate = (board: string[], color: 'white' | 'black') => {
-    return isCheck(board, color) && !hasLegalMoves(board, color);
-  };
+  // const isCheckmate = (board: string[], color: 'white' | 'black') => {
+  //   return isCheck(board, color) && !hasLegalMoves(board, color);
+  // };
 
-  const isDraw = (board: string[]) => {
-    return !board.includes('WR') && !board.includes('BR');
-  };
+  // const isDraw = (board: string[]) => {
+  //   return !board.includes('WR') && !board.includes('BR');
+  // };
 
   const isCheck = (board: string[], color: 'white' | 'black') => {
     const kingColor = color === 'white' ? 'W' : 'B';
@@ -186,24 +186,24 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return false;
   };
   //logging for debug
-  const checkGameStatus = (board: string[], currentPlayer: 'white' | 'black'): 'ongoing' | 'checkmate' | 'stalemate' | 'draw' => {
-    const opponentColor = currentPlayer === 'white' ? 'black' : 'white';
+  // const checkGameStatus = (board: string[], currentPlayer: 'white' | 'black'): 'ongoing' | 'checkmate' | 'stalemate' | 'draw' => {
+  //   const opponentColor = currentPlayer === 'white' ? 'black' : 'white';
     
-    if (isCheck(board, opponentColor)) {
-      if (!hasLegalMoves(board, opponentColor)) {
-        return 'checkmate';
-      }
-    } else if (!hasLegalMoves(board, opponentColor)) {
-      return 'stalemate';
-    }
+  //   if (isCheck(board, opponentColor)) {
+  //     if (!hasLegalMoves(board, opponentColor)) {
+  //       return 'checkmate';
+  //     }
+  //   } else if (!hasLegalMoves(board, opponentColor)) {
+  //     return 'stalemate';
+  //   }
     
-    const pieceCount = board.filter(square => square !== '').length;
-    if (pieceCount === 2) {
-      return 'draw';
-    }
+  //   const pieceCount = board.filter(square => square !== '').length;
+  //   if (pieceCount === 2) {
+  //     return 'draw';
+  //   }
     
-    return 'ongoing';
-  };
+  //   return 'ongoing';
+  // };
   //logging these to debug
   //can remove later
 
@@ -230,6 +230,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
       const newPlayer = currentPlayer === 'white' ? 'black' : 'white';
   
+      //check if only 2 piece left
       if (isInsufficientMaterial(newBoard)) {
         setState({
           ...state,
@@ -242,26 +243,33 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return;
       }
   
-      if (isCheck(newBoard, newPlayer)) {
-        if (!hasLegalMoves(newBoard, newPlayer)) {
+      const isInCheck = isCheck(newBoard, newPlayer);
+      const hasLegalMove = hasLegalMoves(newBoard, newPlayer);
+  
+      if (isInCheck) {
+        if (!hasLegalMove) {
+          // check if checkmate
           setState({
             ...state,
             board: newBoard,
             isGameOver: true,
             winner: currentPlayer,
-            selectedPiece: null,  // Reset selectedPiece
-            availableMoves: [],   // Reset availableMoves
+            selectedPiece: null,
+            availableMoves: [],
           });
           return;
         }
-      } else if (!hasLegalMoves(newBoard, newPlayer)) {
+        //check if check
+        console.log(`${newPlayer} is in check!`);
+      } else if (!hasLegalMove) {
+        //check if stalemate
         setState({
           ...state,
           board: newBoard,
           isGameOver: true,
           winner: 'draw',
-          selectedPiece: null,  // Reset selectedPiece
-          availableMoves: [],   // Reset availableMoves
+          selectedPiece: null,
+          availableMoves: [],
         });
         return;
       }
@@ -270,8 +278,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...state,
         board: newBoard,
         currentPlayer: newPlayer,
-        selectedPiece: null,  // Reset selectedPiece
-        availableMoves: [],   // Reset availableMoves
+        selectedPiece: null,
+        availableMoves: [],
       });
     } 
     else {
