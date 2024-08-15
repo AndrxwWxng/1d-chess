@@ -136,6 +136,18 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return moves;
   };
 
+  const isStalemate = (board: string[], color: 'white' | 'black') => {
+    return !isCheck(board, color) && !hasLegalMoves(board, color);
+  };
+
+  const isCheckmate = (board: string[], color: 'white' | 'black') => {
+    return isCheck(board, color) && !hasLegalMoves(board, color);
+  };
+
+  const isDraw = (board: string[]) => {
+    return !board.includes('WR') && !board.includes('BR');
+  };
+
   const isCheck = (board: string[], color: 'white' | 'black') => {
     const kingColor = color === 'white' ? 'W' : 'B';
     const opponentColor = color === 'white' ? 'B' : 'W';
@@ -151,19 +163,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     return false;
   };
-
-  const isStalemate = (board: string[], color: 'white' | 'black') => {
-    return !isCheck(board, color) && !hasLegalMoves(board, color);
-  };
-
-  const isCheckmate = (board: string[], color: 'white' | 'black') => {
-    return isCheck(board, color) && !hasLegalMoves(board, color);
-  };
-
-  const isDraw = (board: string[]) => {
-    return !board.includes('WR') && !board.includes('BR');
-  };
-
+  
   const hasLegalMoves = (board: string[], color: 'white' | 'black') => {
     const playerColor = color === 'white' ? 'W' : 'B';
     
@@ -235,7 +235,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...state,
           board: newBoard,
           isGameOver: true,
-          winner: 'draw'
+          winner: 'draw',
+          selectedPiece: null,  // Reset selectedPiece
+          availableMoves: [],   // Reset availableMoves
         });
         return;
       }
@@ -246,7 +248,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
             ...state,
             board: newBoard,
             isGameOver: true,
-            winner: currentPlayer
+            winner: currentPlayer,
+            selectedPiece: null,  // Reset selectedPiece
+            availableMoves: [],   // Reset availableMoves
           });
           return;
         }
@@ -255,7 +259,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
           ...state,
           board: newBoard,
           isGameOver: true,
-          winner: 'draw'
+          winner: 'draw',
+          selectedPiece: null,  // Reset selectedPiece
+          availableMoves: [],   // Reset availableMoves
         });
         return;
       }
@@ -264,11 +270,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...state,
         board: newBoard,
         currentPlayer: newPlayer,
-        selectedPiece: null,
-        availableMoves: [],
+        selectedPiece: null,  // Reset selectedPiece
+        availableMoves: [],   // Reset availableMoves
       });
     } 
-
     else {
       setState({ ...state, selectedPiece: null, availableMoves: [] });
     }
