@@ -85,6 +85,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   //   return moves;
   // };
+  
   const calculateAvailableMoves = (board: string[], index: number) => {
     const piece = board[index];
     if (!piece) return [];
@@ -144,13 +145,10 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (board[i][0] === opponentColor) {
         const moves = calculateAvailableMoves(board, i);
         if (moves.includes(kingPosition)) {
-          console.log(`${color} king is in check`);
           return true;
         }
       }
     }
-    
-    console.log(`${color} king is not in check`);
     return false;
   };
 
@@ -167,92 +165,114 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const hasLegalMoves = (board: string[], color: 'white' | 'black') => {
-  const playerColor = color === 'white' ? 'W' : 'B';
-  
-  console.log(`Checking legal moves for ${color}`);
-  
-  for (let i = 0; i < board.length; i++) {
-    if (board[i][0] === playerColor) {
-      console.log(`Checking piece at position ${i}: ${board[i]}`);
-      const moves = calculateAvailableMoves(board, i);
-      console.log(`Available moves for ${board[i]} at ${i}:`, moves);
-      
-      for (const move of moves) {
-        const newBoard = [...board];
-        newBoard[move] = newBoard[i];
-        newBoard[i] = '';
+    const playerColor = color === 'white' ? 'W' : 'B';
+    
+    for (let i = 0; i < board.length; i++) {
+      if (board[i][0] === playerColor) {
+        const moves = calculateAvailableMoves(board, i);
         
-        if (!isCheck(newBoard, color)) {
-          console.log(`Legal move found for ${color} from ${i} to ${move}`);
-          return true;
+        for (const move of moves) {
+          const newBoard = [...board];
+          newBoard[move] = newBoard[i];
+          newBoard[i] = '';
+          
+          if (!isCheck(newBoard, color)) {
+            return true;
+          }
         }
       }
     }
-  }
-  
-  console.log(`No legal moves found for ${color}`);
-  return false;
-};
+    
+    return false;
+  };
   //logging for debug
   const checkGameStatus = (board: string[], currentPlayer: 'white' | 'black'): 'ongoing' | 'checkmate' | 'stalemate' | 'draw' => {
-  console.log('Checking game status:', { board, currentPlayer });
-  
-  if (isDraw(board)) {
-    console.log('Game is a draw');
-    return 'draw';
-  }
-  
-  const opponentColor = currentPlayer === 'white' ? 'black' : 'white';
-  
-  if (isCheck(board, opponentColor)) {
-    if (!hasLegalMoves(board, opponentColor)) {
-      console.log('Checkmate');
-      return 'checkmate';
+    const opponentColor = currentPlayer === 'white' ? 'black' : 'white';
+    
+    if (isCheck(board, opponentColor)) {
+      if (!hasLegalMoves(board, opponentColor)) {
+        return 'checkmate';
+      }
+    } else if (!hasLegalMoves(board, opponentColor)) {
+      return 'stalemate';
     }
-  } else if (!hasLegalMoves(board, opponentColor)) {
-    console.log('Stalemate');
-    return 'stalemate';
-  }
-  
-  console.log('Game is ongoing');
-  return 'ongoing';
-};
+    
+    const pieceCount = board.filter(square => square !== '').length;
+    if (pieceCount === 2) {
+      return 'draw';
+    }
+    
+    return 'ongoing';
+  };
   //logging these to debug
   //can remove later
 
+  const isInsufficientMaterial = (board: string[]) => {
+    return board.filter(square => square !== '').length === 2;
+  };
+  
   const handleSquareClick = (index: number) => {
     if (state.isGameOver) return;
-
+  
     const { board, selectedPiece, currentPlayer } = state;
-
+  
     if (selectedPiece === null) {
       const piece = board[index];
       if (piece && (currentPlayer === 'white' ? piece[0] === 'W' : piece[0] === 'B')) {
         const availableMoves = calculateAvailableMoves(board, index);
         setState({ ...state, selectedPiece: index, availableMoves });
       }
-    } else if (state.availableMoves.includes(index)) {
+    } 
+    else if (state.availableMoves.includes(index)) {
       const newBoard = [...board];
       newBoard[index] = newBoard[selectedPiece];
       newBoard[selectedPiece] = '';
-
+  
       const newPlayer = currentPlayer === 'white' ? 'black' : 'white';
-      const gameStatus = checkGameStatus(newBoard, newPlayer);
-
+  
+      if (isInsufficientMaterial(newBoard)) {
+        setState({
+          ...state,
+          board: newBoard,
+          isGameOver: true,
+          winner: 'draw'
+        });
+        return;
+      }
+  
+      if (isCheck(newBoard, newPlayer)) {
+        if (!hasLegalMoves(newBoard, newPlayer)) {
+          setState({
+            ...state,
+            board: newBoard,
+            isGameOver: true,
+            winner: currentPlayer
+          });
+          return;
+        }
+      } else if (!hasLegalMoves(newBoard, newPlayer)) {
+        setState({
+          ...state,
+          board: newBoard,
+          isGameOver: true,
+          winner: 'draw'
+        });
+        return;
+      }
+  
       setState({
         ...state,
         board: newBoard,
         currentPlayer: newPlayer,
         selectedPiece: null,
         availableMoves: [],
-        isGameOver: gameStatus !== 'ongoing',
-        winner: gameStatus === 'checkmate' ? currentPlayer : (gameStatus === 'stalemate' || gameStatus === 'draw' ? 'draw' : null),
       });
-    } else {
+    } 
+
+    else {
       setState({ ...state, selectedPiece: null, availableMoves: [] });
     }
   };
-
   const resetGame = () => {
     setState(initialState);
   };
