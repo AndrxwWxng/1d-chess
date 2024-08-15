@@ -12,7 +12,9 @@ const GameInfo = () => {
       {!isGameOver ? (
         <p className="text-xl font-semibold">{currentPlayer === 'white' ? "White" : "Black"}'s turn</p>
       ) : (
-        <p className="text-xl font-semibold">{winner === 'white' ? "White" : "Black"} wins!</p>
+        <p className="text-xl font-semibold">
+          {winner === 'draw' ? "Stalemate! It's a draw!" : `${winner === 'white' ? "White" : "Black"} wins by checkmate!`}
+        </p>
       )}
       <Button className="mt-4" onClick={resetGame}>New Game</Button>
     </div>

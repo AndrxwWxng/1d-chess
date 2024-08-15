@@ -15,9 +15,15 @@ const Square: React.FC<SquareProps> = ({ index, piece, onClick, isSelected, isAv
       onClick={onClick}
       className={`w-20 h-20 flex items-center justify-center text-4xl border border-stone-700 cursor-pointer ${
         index % 2 === 0 ? 'bg-amber-100' : 'bg-amber-800'
-      } ${isSelected ? 'ring-4 ring-blue-500' : ''} ${isAvailableMove ? 'ring-4 ring-green-500' : ''}`}
+      } relative`}
     >
       {piece ? <ChessPiece piece={piece} /> : null}
+      {isSelected && (
+        <div className="absolute w-4 h-4 bg-blue-500 rounded-full" />
+      )}
+      {isAvailableMove && (
+        <div className="absolute w-4 h-4 bg-green-500 rounded-full" />
+      )}
     </div>
   );
 };
