@@ -1,7 +1,7 @@
 import { BookKey } from "lucide-react";
 import Image from "next/image";
 
-type PieceKey = 'WK' | 'WN' | 'WR' | 'BK' | 'BN' | 'BR' ;
+type PieceKey = 'WK' | 'WN' | 'WR' | 'BK' | 'BN' | 'BR' | 'SS' ;
 
 const pieces = {
     WK: 'whiteking',
@@ -10,6 +10,7 @@ const pieces = {
     BK: 'blackking',
     BN: 'blackknight',
     BR: 'blackrook',
+    SS: 'skull',
 };
 
 type ChessPieceProps = {
