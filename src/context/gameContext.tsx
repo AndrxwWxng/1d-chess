@@ -44,6 +44,7 @@ const initialState: GameState = {
 type GameContextType = GameState & {
   handleSquareClick: (index: number) => void;
   resetGame: () => void;
+  isCheck: (board: string[], color: 'white' | 'black') => boolean;
 };
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -148,11 +149,12 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   //   return !board.includes('WR') && !board.includes('BR');
   // };
 
-  const isCheck = (board: string[], color: 'white' | 'black') => {
+  const isCheck = (board: string[], color: 'white' | 'black'): boolean => {
+    
     const kingColor = color === 'white' ? 'W' : 'B';
     const opponentColor = color === 'white' ? 'B' : 'W';
     const kingPosition = board.indexOf(kingColor + 'K');
-  
+    
     for (let i = 0; i < board.length; i++) {
       if (board[i][0] === opponentColor) {
         const moves = calculateAvailableMoves(board, i);
@@ -291,7 +293,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <GameContext.Provider value={{ ...state, handleSquareClick, resetGame }}>
+    <GameContext.Provider value={{ ...state, handleSquareClick, resetGame, isCheck}}>
       {children}
     </GameContext.Provider>
   );
