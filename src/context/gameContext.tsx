@@ -196,30 +196,30 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   //should check if the resulting move results in check, meaning its illegal as it allows for the other team to capture the king
-  const illegalMoves = (board: string[], color: 'white' | 'black'): boolean => {
+  // const illegalMoves = (board: string[], color: 'white' | 'black'): boolean => {
     
-    const kingColor = color === 'white' ? 'W' : 'B';
-    const opponentColor = color === 'white' ? 'B' : 'W';
-    const kingPosition = board.indexOf(opponentColor + 'K');
+  //   const kingColor = color === 'white' ? 'W' : 'B';
+  //   const opponentColor = color === 'white' ? 'B' : 'W';
+  //   const kingPosition = board.indexOf(opponentColor + 'K');
     
-    for (let i = 0; i < board.length; i++) {
-      if (board[i][0] === kingColor) {
-        const moves = calculateAvailableMoves(board, i);
-        if (moves.includes(kingPosition)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  };
+  //   for (let i = 0; i < board.length; i++) {
+  //     if (board[i][0] === kingColor) {
+  //       const moves = calculateAvailableMoves(board, i);
+  //       if (moves.includes(kingPosition)) {
+  //         return true;
+  //       }
+  //     }
+  //   }
+  //   return false;
+  // };
 
-  const isIllegalMove = (board: string[], fromIndex: number, toIndex: number, color: 'white' | 'black'): boolean => {
-    const newBoard = [...board];
-    newBoard[toIndex] = newBoard[fromIndex];
-    newBoard[fromIndex] = '';
+  // const isIllegalMove = (board: string[], fromIndex: number, toIndex: number, color: 'white' | 'black'): boolean => {
+  //   const newBoard = [...board];
+  //   newBoard[toIndex] = newBoard[fromIndex];
+  //   newBoard[fromIndex] = '';
   
-    return isCheck(newBoard, color);
-  };
+  //   return isCheck(newBoard, color);
+  // };
 
   //logging for debug
   // const checkGameStatus = (board: string[], currentPlayer: 'white' | 'black'): 'ongoing' | 'checkmate' | 'stalemate' | 'draw' => {
