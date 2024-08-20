@@ -187,6 +187,25 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     return false;
   };
+
+  //should check if the resulting move results in check, meaning its illegal as it allows for the other team to capture the king
+  const illegalMoves = (board: string[], color: 'white' | 'black'): boolean => {
+    
+    const kingColor = color === 'white' ? 'W' : 'B';
+    const opponentColor = color === 'white' ? 'B' : 'W';
+    const kingPosition = board.indexOf(opponentColor + 'K');
+    
+    for (let i = 0; i < board.length; i++) {
+      if (board[i][0] === kingColor) {
+        const moves = calculateAvailableMoves(board, i);
+        if (moves.includes(kingPosition)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
   //logging for debug
   // const checkGameStatus = (board: string[], currentPlayer: 'white' | 'black'): 'ongoing' | 'checkmate' | 'stalemate' | 'draw' => {
   //   const opponentColor = currentPlayer === 'white' ? 'black' : 'white';
@@ -247,7 +266,8 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
       const isInCheck = isCheck(newBoard, newPlayer);
       const hasLegalMove = hasLegalMoves(newBoard, newPlayer);
-  
+      const isIllegalMove = illegalMoves(newBoard, newPlayer);
+      
       if (isInCheck) {
         if (!hasLegalMove) {
           // check if checkmate
