@@ -93,7 +93,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
     const color = piece[0];
     const pieceType = piece[1];
-    const moves = [];
+    let moves = [];
   
     console.log(`Calculating moves for ${piece} at ${index}`);
   
@@ -133,7 +133,6 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     }
   
-    console.log(`Available moves:`, moves);
     return moves;
   };
 
@@ -150,7 +149,6 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // };
 
   const isCheck = (board: string[], color: 'white' | 'black'): boolean => {
-    
     const kingColor = color === 'white' ? 'W' : 'B';
     const opponentColor = color === 'white' ? 'B' : 'W';
     const kingPosition = board.indexOf(kingColor + 'K');
@@ -165,7 +163,16 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     return false;
   };
-  
+  const getLegalMoves = (board: string[], index: number, currentPlayer: 'white' | 'black') => {
+    const moves = calculateAvailableMoves(board, index);
+    return moves.filter(moveIndex => {
+      const newBoard = [...board];
+      newBoard[moveIndex] = newBoard[index];
+      newBoard[index] = '';
+      return !isCheck(newBoard, currentPlayer);
+    });
+  };
+
   const hasLegalMoves = (board: string[], color: 'white' | 'black') => {
     const playerColor = color === 'white' ? 'W' : 'B';
     
@@ -187,6 +194,33 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     return false;
   };
+
+  //should check if the resulting move results in check, meaning its illegal as it allows for the other team to capture the king
+  // const illegalMoves = (board: string[], color: 'white' | 'black'): boolean => {
+    
+  //   const kingColor = color === 'white' ? 'W' : 'B';
+  //   const opponentColor = color === 'white' ? 'B' : 'W';
+  //   const kingPosition = board.indexOf(opponentColor + 'K');
+    
+  //   for (let i = 0; i < board.length; i++) {
+  //     if (board[i][0] === kingColor) {
+  //       const moves = calculateAvailableMoves(board, i);
+  //       if (moves.includes(kingPosition)) {
+  //         return true;
+  //       }
+  //     }
+  //   }
+  //   return false;
+  // };
+
+  // const isIllegalMove = (board: string[], fromIndex: number, toIndex: number, color: 'white' | 'black'): boolean => {
+  //   const newBoard = [...board];
+  //   newBoard[toIndex] = newBoard[fromIndex];
+  //   newBoard[fromIndex] = '';
+  
+  //   return isCheck(newBoard, color);
+  // };
+
   //logging for debug
   // const checkGameStatus = (board: string[], currentPlayer: 'white' | 'black'): 'ongoing' | 'checkmate' | 'stalemate' | 'draw' => {
   //   const opponentColor = currentPlayer === 'white' ? 'black' : 'white';
@@ -221,7 +255,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (selectedPiece === null) {
       const piece = board[index];
       if (piece && (currentPlayer === 'white' ? piece[0] === 'W' : piece[0] === 'B')) {
-        const availableMoves = calculateAvailableMoves(board, index);
+        const availableMoves = getLegalMoves(board, index, currentPlayer);
         setState({ ...state, selectedPiece: index, availableMoves });
       }
     } 
@@ -232,22 +266,22 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   
       const newPlayer = currentPlayer === 'white' ? 'black' : 'white';
   
-      //check if only 2 piece left
       if (isInsufficientMaterial(newBoard)) {
         setState({
           ...state,
           board: newBoard,
           isGameOver: true,
           winner: 'draw',
-          selectedPiece: null,  // Reset selectedPiece
-          availableMoves: [],   // Reset availableMoves
+          selectedPiece: null,
+          availableMoves: [],
         });
         return;
       }
   
       const isInCheck = isCheck(newBoard, newPlayer);
       const hasLegalMove = hasLegalMoves(newBoard, newPlayer);
-  
+      // const isIllegalMove = illegalMoves(newBoard, newPlayer);
+      
       if (isInCheck) {
         if (!hasLegalMove) {
           // check if checkmate
