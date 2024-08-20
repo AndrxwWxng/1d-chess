@@ -33,7 +33,7 @@ type GameState = {
 };
 
 const initialState: GameState = {
-  board: ['WK', 'WN', 'WR', '', '', 'BR', 'BN', 'BK'],
+  board: ['WK', 'WN', 'WR', '', 'SS', '', 'SS', '', 'BR', 'BN', 'BK'],
   currentPlayer: 'white',
   selectedPiece: null,
   availableMoves: [],
