@@ -4,6 +4,7 @@ import Board from '../components/board';
 import { GameProvider, useGame } from '../context/gameContext';
 import { Button } from "@/components/ui/button";
 import board from "@/components/board"
+import './context/gameContext'
 
 const GameInfo = () => {
   const { board, currentPlayer, isCheck, isGameOver, winner, resetGame } = useGame();
@@ -25,6 +26,7 @@ const GameInfo = () => {
       )}
 
       <Button className="mt-4" onClick={resetGame}>New Game</Button>
+      <Button className="mt-4" onClick={playBot}>Play vs. Bot as White</Button>
 {/* 
       <Button className="mt-4" onClick={resetGame}>Nothing</Button> */}
     </div>

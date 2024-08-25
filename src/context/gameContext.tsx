@@ -243,6 +243,43 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   //logging these to debug
   //can remove later
 
+  const botMove = (index: number) => {
+    const {board, currentPlayer } = state;
+    const botColor = currentPlayer === 'white' ? 'black' : 'white';
+
+    const possibleBotMoves = getLegalMoves(board, index, botColor,)
+    function getRandomBotMove(possibleBotMoves: any, moves: any) {
+      if (possibleBotMoves.length === 0)
+        throw new Error("The moves array is empty.")
+
+        return moves[possibleBotMoves]
+      
+    return getRandomBotMove(possibleBotMoves, moves)
+  }
+
+  const playBot = (board: string[],color: 'white' | 'black', botMove: any) => {
+    const botColor = currentPlayer === 'white' ? 'black' : 'white';
+    const newBoard = [...board];
+      newBoard[botMove] = newBoard[index];
+      newBoard[index] = '';
+
+    setState({
+      ...state,
+      board: newBoard
+    })
+  // GameState = {
+  //board: ['WK', 'WN', 'WR', '', '', 'BR', 'BN', 'BK'],
+  //currentPlayer: 'white',
+  //selectedPiece: null,
+  //availableMoves: [],
+  //isGameOver: false,
+  //winner: null,
+};  
+
+
+  }
+
+    
   const isInsufficientMaterial = (board: string[]) => {
     return board.filter(square => square !== '').length === 2;
   };
@@ -331,7 +368,13 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
       {children}
     </GameContext.Provider>
   );
+
+ 
+
+  
 };
+
+
 
 export const useGame = () => {
   const context = useContext(GameContext);
