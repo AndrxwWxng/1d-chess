@@ -45,6 +45,7 @@ type GameContextType = GameState & {
   handleSquareClick: (index: number) => void;
   resetGame: () => void;
   isCheck: (board: string[], color: 'white' | 'black') => boolean;
+  playBot: (board: string[],color: 'white' | 'black', botMove: any) => void;
 };
 
 const GameContext = createContext<GameContextType | undefined>(undefined);

@@ -7,7 +7,7 @@ import board from "@/components/board"
 import './context/gameContext'
 
 const GameInfo = () => {
-  const { board, currentPlayer, isCheck, isGameOver, winner, resetGame } = useGame();
+  const { board, currentPlayer, isCheck, isGameOver, winner, resetGame, playBot,  } = useGame();
   const checkStatus = isCheck(board, currentPlayer);
 
   return (
