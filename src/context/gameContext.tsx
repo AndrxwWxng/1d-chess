@@ -22,14 +22,15 @@
 // };
 'use client';
 import React, { createContext, useState, useContext } from 'react';
+import { getBotMove } from './botLogic';
 
-type GameState = {
+export type GameState = {
   board: string[];
   currentPlayer: 'white' | 'black';
   selectedPiece: number | null;
   availableMoves: number[];
   isGameOver: boolean;
-  winner: 'white' | 'black' | null;
+  winner: 'white' | 'black' | 'draw' | null;
 };
 
 const initialState: GameState = {
@@ -45,7 +46,7 @@ type GameContextType = GameState & {
   handleSquareClick: (index: number) => void;
   resetGame: () => void;
   isCheck: (board: string[], color: 'white' | 'black') => boolean;
-  playBot: (board: string[],color: 'white' | 'black', botMove: any) => void;
+  playBot: () => void;
 };
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -244,30 +245,22 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   //logging these to debug
   //can remove later
 
-  const botMove = (index: number) => {
-    const {board, currentPlayer } = state;
-    const botColor = currentPlayer === 'white' ? 'black' : 'white';
+  const playBot = () => {
+    const botMove = getBotMove(state);
+    if (botMove) {
+      const newBoard = [...state.board];
+      newBoard[botMove.to] = newBoard[botMove.from];
+      newBoard[botMove.from] = '';
 
-    const possibleBotMoves = getLegalMoves(board, index, botColor,)
-    function getRandomBotMove(possibleBotMoves: any, moves: any) {
-      if (possibleBotMoves.length === 0)
-        throw new Error("The moves array is empty.")
+      const newPlayer = state.currentPlayer === 'white' ? 'black' : 'white';
 
-        return moves[possibleBotMoves]
-      
-    return getRandomBotMove(possibleBotMoves, moves)
-  }
-
-  const playBot = (board: string[],color: 'white' | 'black', botMove: any) => {
-    const botColor = currentPlayer === 'white' ? 'black' : 'white';
-    const newBoard = [...board];
-      newBoard[botMove] = newBoard[index];
-      newBoard[index] = '';
-
-    setState({
-      ...state,
-      board: newBoard
-    })
+      setState({
+        ...state,
+        board: newBoard,
+        currentPlayer: newPlayer,
+        selectedPiece: null,
+        availableMoves: [],
+      });
   // GameState = {
   //board: ['WK', 'WN', 'WR', '', '', 'BR', 'BN', 'BK'],
   //currentPlayer: 'white',
@@ -275,10 +268,29 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   //availableMoves: [],
   //isGameOver: false,
   //winner: null,
-};  
+  checkGameEndConditions(newBoard, newPlayer);
+}
+};
 
-
+const checkGameEndConditions = (board: string[], player: 'white' | 'black') => {
+  if (isInsufficientMaterial(board)) {
+    setState(prev => ({ ...prev, isGameOver: true, winner: 'draw' }));
+    return;
   }
+
+  const opponentColor = player === 'white' ? 'black' : 'white';
+  const isInCheck = isCheck(board, opponentColor);
+  const hasLegalMove = hasLegalMoves(board, opponentColor);
+
+  if (isInCheck && !hasLegalMove) {
+    setState(prev => ({ ...prev, isGameOver: true, winner: player }));
+  } else if (!isInCheck && !hasLegalMove) {
+    setState(prev => ({ ...prev, isGameOver: true, winner: 'draw' }));
+  }
+};
+
+
+  
 
     
   const isInsufficientMaterial = (board: string[]) => {
@@ -365,7 +377,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <GameContext.Provider value={{ ...state, handleSquareClick, resetGame, isCheck}}>
+    <GameContext.Provider value={{ ...state, handleSquareClick, resetGame, isCheck, playBot }}>
       {children}
     </GameContext.Provider>
   );
