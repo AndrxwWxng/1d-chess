@@ -246,6 +246,9 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   //can remove later
 
   const playBot = () => {
+    if (state.isGameOver || state.winner !== null){
+      return;
+    }
     const botMove = getBotMove(state);
     if (botMove) {
       const newBoard = [...state.board];
@@ -269,8 +272,17 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   //isGameOver: false,
   //winner: null,
   checkGameEndConditions(newBoard, newPlayer);
+} else {
+
+  const result = isCheck(state.board, state.currentPlayer) ? 'checkmate' : 'stalemate';
+  setState(prevState => ({
+    ...prevState,
+    isGameOver: true,
+    winner: result === 'checkmate' ? (state.currentPlayer === 'white' ? 'black' : 'white') : 'draw'
+  }));
 }
 };
+
 
 const checkGameEndConditions = (board: string[], player: 'white' | 'black') => {
   if (isInsufficientMaterial(board)) {
