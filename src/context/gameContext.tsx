@@ -31,6 +31,7 @@ export type GameState = {
   availableMoves: number[];
   isGameOver: boolean;
   winner: 'white' | 'black' | 'draw' | null;
+  gameMode: '1v1' | '1vbot' | null;
 };
 
 const initialState: GameState = {
@@ -40,19 +41,23 @@ const initialState: GameState = {
   availableMoves: [],
   isGameOver: false,
   winner: null,
+  gameMode: null,
 };
 
 type GameContextType = GameState & {
   handleSquareClick: (index: number) => void;
   resetGame: () => void;
   isCheck: (board: string[], color: 'white' | 'black') => boolean;
-  playBot: () => void;
+  setGameMode: (mode: '1v1' | '1vbot' | null) => void;
 };
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
-export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [state, setState] = useState<GameState>(initialState);
+export const GameProvider: React.FC<{ children: React.ReactNode, initialGameMode: '1v1' | '1vbot' }> = ({ children, initialGameMode }) => {
+  const [state, setState] = useState<GameState>({
+    ...initialState,
+    gameMode: initialGameMode,
+  });
 
   // const calculateAvailableMoves = (board: string[], index: number) => {
   //   const piece = board[index];
@@ -283,7 +288,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
 }
 };
 
-
+//can move this down later to organize
 const checkGameEndConditions = (board: string[], player: 'white' | 'black') => {
   if (isInsufficientMaterial(board)) {
     setState(prev => ({ ...prev, isGameOver: true, winner: 'draw' }));
@@ -311,9 +316,9 @@ const checkGameEndConditions = (board: string[], player: 'white' | 'black') => {
   
   const handleSquareClick = (index: number) => {
     if (state.isGameOver) return;
-  
-    const { board, selectedPiece, currentPlayer } = state;
-  
+
+    const { board, selectedPiece, currentPlayer, gameMode } = state;
+
     if (selectedPiece === null) {
       const piece = board[index];
       if (piece && (currentPlayer === 'white' ? piece[0] === 'W' : piece[0] === 'B')) {
@@ -325,77 +330,101 @@ const checkGameEndConditions = (board: string[], player: 'white' | 'black') => {
       const newBoard = [...board];
       newBoard[index] = newBoard[selectedPiece];
       newBoard[selectedPiece] = '';
-  
+
       const newPlayer = currentPlayer === 'white' ? 'black' : 'white';
-  
-      if (isInsufficientMaterial(newBoard)) {
-        setState({
-          ...state,
-          board: newBoard,
-          isGameOver: true,
-          winner: 'draw',
-          selectedPiece: null,
-          availableMoves: [],
-        });
-        return;
-      }
-  
-      const isInCheck = isCheck(newBoard, newPlayer);
-      const hasLegalMove = hasLegalMoves(newBoard, newPlayer);
-      // const isIllegalMove = illegalMoves(newBoard, newPlayer);
-      
-      if (isInCheck) {
-        if (!hasLegalMove) {
-          // check if checkmate
-          setState({
-            ...state,
-            board: newBoard,
-            isGameOver: true,
-            winner: currentPlayer,
-            selectedPiece: null,
-            availableMoves: [],
-          });
-          return;
-        }
-        //check if check
-        console.log(`${newPlayer} is in check!`);
-      } else if (!hasLegalMove) {
-        //check if stalemate
-        setState({
-          ...state,
-          board: newBoard,
-          isGameOver: true,
-          winner: 'draw',
-          selectedPiece: null,
-          availableMoves: [],
-        });
-        return;
-      }
-  
-      setState({
-        ...state,
+
+      setState(prevState => ({
+        ...prevState,
         board: newBoard,
         currentPlayer: newPlayer,
         selectedPiece: null,
         availableMoves: [],
-      });
-    } 
-    else {
-      setState({ ...state, selectedPiece: null, availableMoves: [] });
-    }
-  };
-  const resetGame = () => {
-    setState(initialState);
-  };
+      }));
 
-  return (
-    <GameContext.Provider value={{ ...state, handleSquareClick, resetGame, isCheck, playBot }}>
-      {children}
-    </GameContext.Provider>
-  );
+      checkGameEndConditions(newBoard, newPlayer);
+      // const isIllegalMove = illegalMoves(newBoard, newPlayer);
+      
+    //   if (isInCheck) {
+    //     if (!hasLegalMove) {
+    //       // check if checkmate
+    //       setState({
+    //         ...state,
+    //         board: newBoard,
+    //         isGameOver: true,
+    //         winner: currentPlayer,
+    //         selectedPiece: null,
+    //         availableMoves: [],
+    //       });
+    //       return;
+    //     }
+    //     //check if check
+    //     console.log(`${newPlayer} is in check!`);
+    //   } else if (!hasLegalMove) {
+    //     //check if stalemate
+    //     setState({
+    //       ...state,
+    //       board: newBoard,
+    //       isGameOver: true,
+    //       winner: 'draw',
+    //       selectedPiece: null,
+    //       availableMoves: [],
+    //     });
+    //     return;
+    //   }
+  
+    //   setState({
+    //     ...state,
+    //     board: newBoard,
+    //     currentPlayer: newPlayer,
+    //     selectedPiece: null,
+    //     availableMoves: [],
+    //   });
+    // } 
+    // else {
+    //   setState({ ...state, selectedPiece: null, availableMoves: [] });
+    // }
+        // this stuff is for the bot movements
+        if (gameMode === '1vbot' && newPlayer === 'black') {
+          setTimeout(() => {
+            const botMove = getBotMove({ ...state, board: newBoard, currentPlayer: newPlayer }, isCheck);
+            if (botMove) {
+              const botBoard = [...newBoard];
+              botBoard[botMove.to] = botBoard[botMove.from];
+              botBoard[botMove.from] = '';
+              setState(prevState => ({
+                ...prevState,
+                board: botBoard,
+                currentPlayer: 'white',
+              }));
+              checkGameEndConditions(botBoard, 'white');
+            }
+          }, 500);
+        }
+      } 
+      else {
+        setState({ ...state, selectedPiece: null, availableMoves: [] });
+      }
+    };
+  
+    const resetGame = () => {
+      setState({ ...initialState, gameMode: state.gameMode });
+    };
+  
+    const setGameMode = (mode: '1v1' | '1vbot' | null) => {
+      setState({ ...initialState, gameMode: mode });
+    };
+  
 
- 
+    
+  
 
+    return (
+      <GameContext.Provider value={{ ...state, handleSquareClick, resetGame, isCheck, setGameMode }}>
+        {children}
+      </GameContext.Provider>
+    );
+    
+    
   
 };
 
