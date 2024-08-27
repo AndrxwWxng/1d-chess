@@ -289,22 +289,22 @@ export const GameProvider: React.FC<{ children: React.ReactNode, initialGameMode
 };
 
 //can move this down later to organize
-const checkGameEndConditions = (board: string[], player: 'white' | 'black') => {
-  if (isInsufficientMaterial(board)) {
-    setState(prev => ({ ...prev, isGameOver: true, winner: 'draw' }));
-    return;
-  }
+// const checkGameEndConditions = (board: string[], player: 'white' | 'black') => {
+//   if (isInsufficientMaterial(board)) {
+//     setState(prev => ({ ...prev, isGameOver: true, winner: 'draw' }));
+//     return;
+//   }
 
-  const opponentColor = player === 'white' ? 'black' : 'white';
-  const isInCheck = isCheck(board, opponentColor);
-  const hasLegalMove = hasLegalMoves(board, opponentColor);
+//   const opponentColor = player === 'white' ? 'black' : 'white';
+//   const isInCheck = isCheck(board, opponentColor);
+//   const hasLegalMove = hasLegalMoves(board, opponentColor);
 
-  if (isInCheck && !hasLegalMove) {
-    setState(prev => ({ ...prev, isGameOver: true, winner: player }));
-  } else if (!isInCheck && !hasLegalMove) {
-    setState(prev => ({ ...prev, isGameOver: true, winner: 'draw' }));
-  }
-};
+//   if (isInCheck && !hasLegalMove) {
+//     setState(prev => ({ ...prev, isGameOver: true, winner: player }));
+//   } else if (!isInCheck && !hasLegalMove) {
+//     setState(prev => ({ ...prev, isGameOver: true, winner: 'draw' }));
+//   }
+// };
 
 
   
@@ -330,9 +330,25 @@ const checkGameEndConditions = (board: string[], player: 'white' | 'black') => {
       const newBoard = [...board];
       newBoard[index] = newBoard[selectedPiece];
       newBoard[selectedPiece] = '';
-
+  
       const newPlayer = currentPlayer === 'white' ? 'black' : 'white';
-
+  
+      // Check for checkmate or stalemate immediately after the player's move
+      const gameEndResult = checkGameEndConditions(newBoard, newPlayer);
+      
+      if (gameEndResult) {
+        setState(prevState => ({
+          ...prevState,
+          board: newBoard,
+          currentPlayer: newPlayer,
+          selectedPiece: null,
+          availableMoves: [],
+          isGameOver: true,
+          winner: gameEndResult === 'checkmate' ? currentPlayer : 'draw'
+        }));
+        return;
+      }
+  
       setState(prevState => ({
         ...prevState,
         board: newBoard,
@@ -340,71 +356,46 @@ const checkGameEndConditions = (board: string[], player: 'white' | 'black') => {
         selectedPiece: null,
         availableMoves: [],
       }));
-
-      checkGameEndConditions(newBoard, newPlayer);
-      // const isIllegalMove = illegalMoves(newBoard, newPlayer);
-      
-    //   if (isInCheck) {
-    //     if (!hasLegalMove) {
-    //       // check if checkmate
-    //       setState({
-    //         ...state,
-    //         board: newBoard,
-    //         isGameOver: true,
-    //         winner: currentPlayer,
-    //         selectedPiece: null,
-    //         availableMoves: [],
-    //       });
-    //       return;
-    //     }
-    //     //check if check
-    //     console.log(`${newPlayer} is in check!`);
-    //   } else if (!hasLegalMove) {
-    //     //check if stalemate
-    //     setState({
-    //       ...state,
-    //       board: newBoard,
-    //       isGameOver: true,
-    //       winner: 'draw',
-    //       selectedPiece: null,
-    //       availableMoves: [],
-    //     });
-    //     return;
-    //   }
   
-    //   setState({
-    //     ...state,
-    //     board: newBoard,
-    //     currentPlayer: newPlayer,
-    //     selectedPiece: null,
-    //     availableMoves: [],
-    //   });
-    // } 
-    // else {
-    //   setState({ ...state, selectedPiece: null, availableMoves: [] });
-    // }
-        // this stuff is for the bot movements
-        if (gameMode === '1vbot' && newPlayer === 'black') {
-          setTimeout(() => {
-            const botMove = getBotMove({ ...state, board: newBoard, currentPlayer: newPlayer }, isCheck);
-            if (botMove) {
-              const botBoard = [...newBoard];
-              botBoard[botMove.to] = botBoard[botMove.from];
-              botBoard[botMove.from] = '';
-              setState(prevState => ({
-                ...prevState,
-                board: botBoard,
-                currentPlayer: 'white',
-              }));
-              checkGameEndConditions(botBoard, 'white');
-            }
-          }, 500);
-        }
-      } 
-      else {
-        setState({ ...state, selectedPiece: null, availableMoves: [] });
+      // If it's a bot game and it's the bot's turn, make the bot move
+      if (gameMode === '1vbot' && newPlayer === 'black') {
+        setTimeout(() => {
+          makeBotMove(newBoard);
+        }, 500);
       }
-    };
+    } 
+    else {
+      setState({ ...state, selectedPiece: null, availableMoves: [] });
+    }
+  };
+  
+  const makeBotMove = (currentBoard: string[]) => {
+    const botMove = getBotMove({ ...state, board: currentBoard, currentPlayer: 'black' }, isCheck);
+    if (botMove) {
+      const botBoard = [...currentBoard];
+      botBoard[botMove.to] = botBoard[botMove.from];
+      botBoard[botMove.from] = '';
+  
+      // Check for checkmate or stalemate immediately after the bot's move
+      const gameEndResult = checkGameEndConditions(botBoard, 'white');
+  
+      setState(prevState => ({
+        ...prevState,
+        board: botBoard,
+        currentPlayer: 'white',
+        isGameOver: gameEndResult !== null,
+        winner: gameEndResult === 'checkmate' ? 'black' : (gameEndResult === 'stalemate' ? 'draw' : null)
+      }));
+    } else {
+      // If the bot has no legal moves, it's either checkmate or stalemate
+      const isInCheck = isCheck(currentBoard, 'black');
+      setState(prevState => ({
+        ...prevState,
+        isGameOver: true,
+        winner: isInCheck ? 'white' : 'draw'
+      }));
+    }
+  };
   
     const resetGame = () => {
       setState({ ...initialState, gameMode: state.gameMode });
@@ -415,7 +406,18 @@ const checkGameEndConditions = (board: string[], player: 'white' | 'black') => {
     };
   
 
+    const checkGameEndConditions = (board: string[], player: 'white' | 'black'): 'checkmate' | 'stalemate' | null => {
+      const isInCheck = isCheck(board, player);
+      const hasLegalMove = hasLegalMoves(board, player);
     
+      if (isInCheck && !hasLegalMove) {
+        return 'checkmate';
+      } else if (!isInCheck && !hasLegalMove) {
+        return 'stalemate';
+      }
+    
+      return null;
+    };
   
 
     return (
