@@ -12,7 +12,7 @@ type MinimaxResult = {
     move: Move | null;
 };
 
-const pieceValues = {
+const pieceValues: { [key: string]: number } = {
     'K': 900,
     'R': 50,
     'N': 30
