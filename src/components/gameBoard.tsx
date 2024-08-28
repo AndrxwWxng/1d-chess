@@ -17,8 +17,8 @@ const GameBoard = () => {
 
   return (
     <GameProvider initialGameMode={gameMode}>
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
-        <Card className="p-8 bg-white rounded-lg shadow-2xl">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-900 dark:to-purple-900">
+        <Card className="p-8 rounded-lg shadow-2xl">
           <CardContent>
             <h1 className="text-4xl font-bold text-center mb-6">1D Chess</h1>
             <h2 className="text-2xl font-semibold text-center mb-4">
@@ -26,7 +26,7 @@ const GameBoard = () => {
             </h2>
             <Board />
             <GameInfo />
-            <Button onClick={() => window.history.back()} className="mt-4">
+            <Button onClick={() => window.history.back()} className="mt-4" variant="outline">
               Back to Welcome Page
             </Button>
           </CardContent>
