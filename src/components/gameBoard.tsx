@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { Suspense } from 'react';
 import Board from './board';
 import GameInfo from './gameInfo';
 import { useSearchParams } from 'next/navigation';
@@ -17,6 +17,7 @@ const GameBoard = () => {
 
   return (
     <GameProvider initialGameMode={gameMode}>
+      <Suspense fallback={<div>Loading game...</div>}>
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-red-500 to-purple-600 dark:from-blue-800 dark:to-purple-900 p-4 transition-colors duration-200">
       <Card className="w-full max-w-3xl shadow-xl bg-white dark:bg-gray-800">
           <CardHeader className="text-center">
@@ -36,6 +37,7 @@ const GameBoard = () => {
           </CardFooter>
         </Card>
       </div>
+      </Suspense>
     </GameProvider>
   );
 };
