@@ -4,7 +4,7 @@ import Board from './board';
 import GameInfo from './gameInfo';
 import { useSearchParams } from 'next/navigation';
 import { GameProvider } from '@/context/gameContext';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 const GameBoard = () => {
@@ -17,19 +17,23 @@ const GameBoard = () => {
 
   return (
     <GameProvider initialGameMode={gameMode}>
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-900 dark:to-purple-900">
-        <Card className="p-8 rounded-lg shadow-2xl">
-          <CardContent>
-            <h1 className="text-4xl font-bold text-center mb-6">1D Chess</h1>
-            <h2 className="text-2xl font-semibold text-center mb-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-red-500 to-purple-600 dark:from-blue-800 dark:to-purple-900 p-4 transition-colors duration-200">
+      <Card className="w-full max-w-3xl shadow-xl bg-white dark:bg-gray-800">
+          <CardHeader className="text-center">
+            <CardTitle className="text-3xl font-bold mb-2 text-gray-800 dark:text-white">1D Chess</CardTitle>
+            <p className="text-gray-600 dark:text-gray-300">
               {gameMode === '1v1' ? 'Player vs Player' : 'Player vs Bot'}
-            </h2>
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-6">
             <Board />
             <GameInfo />
-            <Button onClick={() => window.history.back()} className="mt-4" variant="outline">
+          </CardContent>
+          <CardFooter className="flex justify-center">
+            <Button onClick={() => window.history.back()} variant="outline" className="bg-white text-gray-800 hover:bg-gray-100 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">
               Back to Welcome Page
             </Button>
-          </CardContent>
+          </CardFooter>
         </Card>
       </div>
     </GameProvider>
