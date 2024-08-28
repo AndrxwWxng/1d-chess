@@ -4,7 +4,8 @@ import { useRouter } from 'next/navigation';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTheme } from "next-themes";
-import { Moon, Sun, Github } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
+import { FaGithub, FaMoon, FaSun } from 'react-icons/fa';
 
 const WelcomePage = () => {
   const router = useRouter();
@@ -36,16 +37,15 @@ const WelcomePage = () => {
               {theme === "dark" ? <Sun className="h-[1.2rem] w-[1.2rem]" /> : <Moon className="h-[1.2rem] w-[1.2rem]" />}
             </Button>
             {/* I NEED TO FIX THIS BUTTON FOR SOURCE CODE */}
-            <Button 
-              as="a" 
+            <a 
               href="https://github.com/AndrxwWxng/gpa-calculator" 
               target="_blank" 
               rel="noopener noreferrer"
-              variant="outline" 
-              size="icon"
             >
-              <Github className="h-[1.2rem] w-[1.2rem]" />
-            </Button>
+              <Button variant="outline" size="icon">
+                <FaGithub className="h-[1.2rem] w-[1.2rem]" />
+              </Button>
+            </a>
           </div>
         </CardContent>
       </Card>
