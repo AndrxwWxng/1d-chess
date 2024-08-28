@@ -310,9 +310,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode, initialGameMode
   
 
     
-  const isInsufficientMaterial = (board: string[]) => {
-    return board.filter(square => square !== '').length === 2;
-  };
+
   
   const handleSquareClick = (index: number) => {
     if (state.isGameOver) return;
@@ -370,29 +368,28 @@ export const GameProvider: React.FC<{ children: React.ReactNode, initialGameMode
   };
   
   const makeBotMove = (currentBoard: string[]) => {
-    const botMove = getBotMove({ ...state, board: currentBoard, currentPlayer: 'black' }, isCheck);
+    const botMove = getBotMove({ ...state, board: currentBoard, currentPlayer: 'black' });
     if (botMove) {
       const botBoard = [...currentBoard];
       botBoard[botMove.to] = botBoard[botMove.from];
       botBoard[botMove.from] = '';
-  
-      // Check for checkmate or stalemate immediately after the bot's move
+
       const gameEndResult = checkGameEndConditions(botBoard, 'white');
-  
+
       setState(prevState => ({
         ...prevState,
         board: botBoard,
         currentPlayer: 'white',
         isGameOver: gameEndResult !== null,
-        winner: gameEndResult === 'checkmate' ? 'black' : (gameEndResult === 'stalemate' ? 'draw' : null)
+        winner: gameEndResult === 'checkmate' ? 'black' : (gameEndResult === 'insufficient_material' || gameEndResult === 'stalemate' ? 'draw' : null)
       }));
     } else {
-      // If the bot has no legal moves, it's either checkmate or stalemate
-      const isInCheck = isCheck(currentBoard, 'black');
+      // checkmate or stalemate/draw
+      const gameEndResult = checkGameEndConditions(currentBoard, 'black');
       setState(prevState => ({
         ...prevState,
         isGameOver: true,
-        winner: isInCheck ? 'white' : 'draw'
+        winner: gameEndResult === 'checkmate' ? 'white' : 'draw'
       }));
     }
   };
@@ -405,17 +402,25 @@ export const GameProvider: React.FC<{ children: React.ReactNode, initialGameMode
       setState({ ...initialState, gameMode: mode });
     };
   
+    const isInsufficientMaterial = (board: string[]): boolean => {
+      const pieces = board.filter(square => square !== '');
+      return pieces.length === 2 && pieces.every(piece => piece[1] === 'K');
+    };
 
-    const checkGameEndConditions = (board: string[], player: 'white' | 'black'): 'checkmate' | 'stalemate' | null => {
+    const checkGameEndConditions = (board: string[], player: 'white' | 'black'): 'checkmate' | 'stalemate' | 'insufficient_material' | null => {
+      if (isInsufficientMaterial(board)) {
+        return 'insufficient_material';
+      }
+  
       const isInCheck = isCheck(board, player);
       const hasLegalMove = hasLegalMoves(board, player);
-    
+  
       if (isInCheck && !hasLegalMove) {
         return 'checkmate';
       } else if (!isInCheck && !hasLegalMove) {
         return 'stalemate';
       }
-    
+  
       return null;
     };
   
