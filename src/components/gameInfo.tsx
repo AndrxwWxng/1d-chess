@@ -24,7 +24,7 @@ const GameInfo = () => {
           {winner === 'draw' ? "Stalemate! It's a draw!" : `${winner === 'white' ? "White" : "Black"} wins by checkmate!`}
         </p>
       )}
-      <Button onClick={resetGame} variant="outline">New Game</Button>
+      <Button onClick={resetGame} variant="outline" className="bg-white text-gray-800 hover:bg-gray-100 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600">New Game</Button>
   {/* 
         <Button className="mt-4" onClick={resetGame}>Nothing</Button> */}
       </div>

@@ -7,7 +7,8 @@ const Board = () => {
   const { board, handleSquareClick, selectedPiece, availableMoves } = useGame();
 
   return (
-    <div className='flex bg-gradient-to-r from-amber-200 to-amber-400 p-2 rounded-md shadow-lg'>
+    <div className="flex justify-center">
+    <div className="flex p-2 bg-gray-200 dark:bg-gray-700 rounded-lg">
       {board.map((piece: string, index: number) => (
         <Square 
           key={index} 
@@ -18,6 +19,7 @@ const Board = () => {
           isAvailableMove={availableMoves.includes(index)}
         />
       ))}
+    </div>
     </div>
   );
 };
