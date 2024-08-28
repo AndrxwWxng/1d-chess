@@ -39,7 +39,7 @@ const WelcomePage = () => {
             </Button>
             {/* I NEED TO FIX THIS BUTTON FOR SOURCE CODE */}
             <a 
-              href="https://github.com/AndrxwWxng/gpa-calculator" 
+              href="https://github.com/AndrxwWxng/1d-chess" 
               target="_blank" 
               rel="noopener noreferrer"
             >
